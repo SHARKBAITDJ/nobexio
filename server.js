@@ -32,6 +32,10 @@ db.exec(`
     twitter TEXT DEFAULT '',
     instagram TEXT DEFAULT '',
     push_enabled INTEGER DEFAULT 1,
+    stream_host TEXT DEFAULT 'usa8.fastcast4u.com',
+    stream_port TEXT DEFAULT '26054',
+    stream_id TEXT DEFAULT '1',
+    stream_password TEXT DEFAULT '',
     created_at TEXT DEFAULT (datetime('now'))
   );
 
@@ -118,10 +122,15 @@ db.exec(`
   );
 `);
 
+// Migrate: add stream detail columns if they don't exist (for existing DBs)
+['stream_host','stream_port','stream_id','stream_password'].forEach(col => {
+  try { db.exec(`ALTER TABLE station ADD COLUMN ${col} TEXT DEFAULT ''`); } catch(e) {}
+});
+
 // Seed station if not exists
 const stationExists = db.prepare('SELECT id FROM station WHERE id=1').get();
 if (!stationExists) {
-  db.prepare(`INSERT INTO station (id,name,slogan,stream_url,stream_type) VALUES (1,'My Radio Station','Live 24/7','http://usa8.fastcast4u.com:26054/;','shoutcast')`).run();
+  db.prepare(`INSERT INTO station (id,name,slogan,stream_url,stream_type,stream_host,stream_port,stream_id,stream_password) VALUES (1,'My Radio Station','Live 24/7','http://usa8.fastcast4u.com:26054/;','shoutcast','usa8.fastcast4u.com','26054','1','')`).run();
 }
 
 // Seed demo analytics
@@ -206,7 +215,7 @@ app.get('/api/station', (req, res) => {
   res.json(db.prepare('SELECT * FROM station WHERE id=1').get());
 });
 app.put('/api/station', (req, res) => {
-  const fields = ['name','slogan','stream_url','stream_type','logo_url','color_primary','color_secondary','color_bg','website','facebook','twitter','instagram','push_enabled'];
+  const fields = ['name','slogan','stream_url','stream_type','stream_host','stream_port','stream_id','stream_password','logo_url','color_primary','color_secondary','color_bg','website','facebook','twitter','instagram','push_enabled'];
   const updates = {};
   fields.forEach(f => { if (req.body[f] !== undefined) updates[f] = req.body[f]; });
   if (Object.keys(updates).length === 0) return res.json({ success: true });

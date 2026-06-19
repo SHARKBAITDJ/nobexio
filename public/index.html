@@ -198,18 +198,30 @@
   <!-- ═══════════════════════════════════════════════════════ STREAM MANAGER -->
   <section class="page" id="page-stream">
     <div class="page-intro">
-      <p>Manage your live stream connection. Your Shoutcast stream is pre-configured.</p>
+      <p>Manage your live stream connection. Enter your server details and click Save & Apply.</p>
     </div>
     <div class="two-col">
       <div class="card">
         <div class="card-header"><h3>Stream Configuration</h3></div>
         <div class="form-group">
-          <label>Stream URL</label>
-          <input type="text" id="streamUrl" class="input" placeholder="http://...">
+          <label>Server / Host</label>
+          <input type="text" id="streamHost" class="input" placeholder="e.g. usa8.fastcast4u.com" oninput="updateBuiltStreamUrl()">
         </div>
         <div class="form-group">
-          <label>Stream Type</label>
-          <select id="streamType" class="input">
+          <label>Port</label>
+          <input type="text" id="streamPort" class="input" placeholder="e.g. 26054" oninput="updateBuiltStreamUrl()">
+        </div>
+        <div class="form-group">
+          <label>Stream ID / Mount Point</label>
+          <input type="text" id="streamIdField" class="input" placeholder="e.g. 1">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="streamPassword" class="input" placeholder="Stream source password">
+        </div>
+        <div class="form-group">
+          <label>Protocol</label>
+          <select id="streamType" class="input" onchange="updateBuiltStreamUrl()">
             <option value="shoutcast">Shoutcast V1</option>
             <option value="shoutcast2">Shoutcast V2</option>
             <option value="icecast">Icecast</option>
@@ -217,11 +229,8 @@
             <option value="hls">HLS (m3u8)</option>
           </select>
         </div>
-        <div class="stream-info-grid">
-          <div class="info-item"><span class="info-label">Server</span><span class="info-val">usa8.fastcast4u.com</span></div>
-          <div class="info-item"><span class="info-label">Port</span><span class="info-val">26054</span></div>
-          <div class="info-item"><span class="info-label">Stream ID</span><span class="info-val">1</span></div>
-          <div class="info-item"><span class="info-label">Protocol</span><span class="info-val">Shoutcast V1</span></div>
+        <div class="stream-info-grid" id="streamInfoGrid">
+          <div class="info-item"><span class="info-label">Stream URL</span><span class="info-val" id="builtStreamUrl">—</span></div>
         </div>
         <button class="btn btn-primary" onclick="saveStreamConfig()">💾 Save & Apply</button>
       </div>

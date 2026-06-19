@@ -58,8 +58,12 @@ async function loadStation() {
   station = await res.json();
 
   // Apply to fields
-  setVal('streamUrl', station.stream_url);
+  setVal('streamHost', station.stream_host || '');
+  setVal('streamPort', station.stream_port || '');
+  setVal('streamIdField', station.stream_id || '1');
+  setVal('streamPassword', station.stream_password || '');
   setVal('streamType', station.stream_type);
+  updateBuiltStreamUrl();
   setVal('settingName', station.name);
   setVal('settingSlogan', station.slogan);
   setVal('settingStreamUrl', station.stream_url);
@@ -439,20 +443,57 @@ function setupPushLivePreview() {
 }
 
 // ── Stream Manager ─────────────────────────────────────────────────────────
+function buildStreamUrl() {
+  const host = (getVal('streamHost') || '').trim();
+  const port = (getVal('streamPort') || '').trim();
+  const type = getVal('streamType');
+  if (!host || !port) return '';
+  if (type === 'icecast') {
+    const mount = (getVal('streamIdField') || 'stream').trim();
+    return `http://${host}:${port}/${mount}`;
+  }
+  return `http://${host}:${port}/;`;
+}
+
+function updateBuiltStreamUrl() {
+  const el = document.getElementById('builtStreamUrl');
+  if (el) el.textContent = buildStreamUrl() || '—';
+}
+
 async function saveStreamConfig() {
-  const data = { stream_url: getVal('streamUrl'), stream_type: getVal('streamType') };
+  const host = (getVal('streamHost') || '').trim();
+  const port = (getVal('streamPort') || '').trim();
+  const streamId = (getVal('streamIdField') || '1').trim();
+  const password = (getVal('streamPassword') || '').trim();
+  const type = getVal('streamType');
+  const streamUrl = buildStreamUrl();
+
+  if (!host || !port) { toast('Please enter server and port', 'error'); return; }
+
+  const data = {
+    stream_host: host,
+    stream_port: port,
+    stream_id: streamId,
+    stream_password: password,
+    stream_url: streamUrl,
+    stream_type: type
+  };
   const res = await fetch('/api/station', { method: 'PUT', headers: jsonH(), body: JSON.stringify(data) });
   const d = await res.json();
   if (d.success) {
-    if (mainAudio) mainAudio.src = data.stream_url;
+    if (mainAudio) mainAudio.src = streamUrl;
+    station.stream_url = streamUrl;
+    updateBuiltStreamUrl();
     toast('Stream config saved ✓', 'success');
     await loadStation();
   }
 }
 
 async function testStream() {
+  const host = (getVal('streamHost') || station.stream_host || '').trim();
+  const port = (getVal('streamPort') || station.stream_port || '').trim();
   toast('Testing stream connection...', 'success');
-  setTimeout(() => toast('✅ Stream reachable — Shoutcast V1 on port 26054', 'success'), 1500);
+  setTimeout(() => toast(`✅ Testing ${host}:${port} — check your stream source is live`, 'success'), 1500);
 }
 
 // ── App Builder ────────────────────────────────────────────────────────────
