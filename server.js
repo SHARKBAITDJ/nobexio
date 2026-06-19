@@ -13,6 +13,7 @@ const fs = require('fs');
 
 // ── Database ──────────────────────────────────────────────────────────────────
 const Database = require('better-sqlite3');
+if (!fs.existsSync('./data')) fs.mkdirSync('./data', { recursive: true });
 const db = new Database('./data/nobexio.db');
 
 db.exec(`
