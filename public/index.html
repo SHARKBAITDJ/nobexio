@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NobexIO — Radio Broadcasting Platform</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">🎙️</div>
+      <div class="logo-text">
+        <span class="logo-name">NobexIO</span>
+        <span class="logo-sub">Broadcasting Platform</span>
+      </div>
+    </div>
+    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+  </div>
+
+  <!-- Live Status -->
+  <div class="live-badge" id="liveBadge">
+    <span class="live-dot"></span>
+    <span class="live-text">LIVE</span>
+    <span class="live-listeners" id="sidebarListeners">-- listeners</span>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-section-label">MAIN</div>
+    <a class="nav-item active" data-page="dashboard" onclick="showPage('dashboard')">
+      <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+    </a>
+    <a class="nav-item" data-page="stream" onclick="showPage('stream')">
+      <span class="nav-icon">📡</span><span class="nav-label">Stream Manager</span>
+    </a>
+    <a class="nav-item" data-page="player" onclick="showPage('player')">
+      <span class="nav-icon">🎵</span><span class="nav-label">Live Player</span>
+    </a>
+
+    <div class="nav-section-label">CONTENT</div>
+    <a class="nav-item" data-page="schedule" onclick="showPage('schedule')">
+      <span class="nav-icon">📅</span><span class="nav-label">Show Schedule</span>
+    </a>
+    <a class="nav-item" data-page="podcasts" onclick="showPage('podcasts')">
+      <span class="nav-icon">🎙️</span><span class="nav-label">Podcasts</span>
+    </a>
+
+    <div class="nav-section-label">AUDIENCE</div>
+    <a class="nav-item" data-page="push" onclick="showPage('push')">
+      <span class="nav-icon">🔔</span><span class="nav-label">Push Notifications</span>
+      <span class="nav-badge" id="pushBadge">0</span>
+    </a>
+    <a class="nav-item" data-page="analytics" onclick="showPage('analytics')">
+      <span class="nav-icon">📈</span><span class="nav-label">Analytics</span>
+    </a>
+
+    <div class="nav-section-label">PLATFORM</div>
+    <a class="nav-item" data-page="appbuilder" onclick="showPage('appbuilder')">
+      <span class="nav-icon">📱</span><span class="nav-label">App Builder</span>
+      <span class="nav-badge new">NEW</span>
+    </a>
+    <a class="nav-item" data-page="widgets" onclick="showPage('widgets')">
+      <span class="nav-icon">🧩</span><span class="nav-label">Widgets</span>
+    </a>
+    <a class="nav-item" data-page="monetize" onclick="showPage('monetize')">
+      <span class="nav-icon">💰</span><span class="nav-label">Monetization</span>
+    </a>
+    <a class="nav-item" data-page="settings" onclick="showPage('settings')">
+      <span class="nav-icon">⚙️</span><span class="nav-label">Settings</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="free-badge">✅ FREE FOREVER</div>
+  </div>
+</aside>
+
+<!-- Main Content -->
+<main class="main" id="main">
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      <div class="breadcrumb" id="breadcrumb">Overview</div>
+    </div>
+    <div class="topbar-right">
+      <div class="nowplaying-bar" id="topbarNowPlaying">
+        <span class="np-icon">🎵</span>
+        <span class="np-text" id="topbarNpText">Loading stream...</span>
+      </div>
+      <div class="topbar-avatar">DJ</div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════ DASHBOARD -->
+  <section class="page active" id="page-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card accent-purple">
+        <div class="stat-icon">👂</div>
+        <div class="stat-body">
+          <div class="stat-value" id="statListeners">--</div>
+          <div class="stat-label">Live Listeners</div>
+          <div class="stat-change positive">+12% today</div>
+        </div>
+        <div class="stat-sparkline" id="sparkListeners"></div>
+      </div>
+      <div class="stat-card accent-red">
+        <div class="stat-icon">📻</div>
+        <div class="stat-body">
+          <div class="stat-value" id="statTotalPlays">--</div>
+          <div class="stat-label">Total Plays (7d)</div>
+          <div class="stat-change positive">+8% week</div>
+        </div>
+      </div>
+      <div class="stat-card accent-green">
+        <div class="stat-icon">🔔</div>
+        <div class="stat-body">
+          <div class="stat-value" id="statSubscribers">--</div>
+          <div class="stat-label">Push Subscribers</div>
+          <div class="stat-change positive">Growing</div>
+        </div>
+      </div>
+      <div class="stat-card accent-blue">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-body">
+          <div class="stat-value" id="statAvgSession">--min</div>
+          <div class="stat-label">Avg. Session</div>
+          <div class="stat-change positive">+3min</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <!-- Now Playing Card -->
+      <div class="card now-playing-card">
+        <div class="card-header">
+          <h3>Now Playing</h3>
+          <span class="live-pill"><span class="live-dot sm"></span> LIVE</span>
+        </div>
+        <div class="now-playing-display">
+          <div class="np-artwork" id="npArtwork">🎵</div>
+          <div class="np-info">
+            <div class="np-title" id="npTitle">Loading...</div>
+            <div class="np-artist" id="npArtist"></div>
+            <div class="np-meta">
+              <span class="stream-quality">MP3 · 128kbps</span>
+              <span class="listener-count" id="npListeners"><span class="live-dot sm"></span> -- listeners</span>
+            </div>
+          </div>
+        </div>
+        <div class="audio-controls">
+          <button class="btn-play" id="mainPlayBtn" onclick="toggleMainPlayer()">▶ Play Live</button>
+          <div class="volume-row">
+            <span>🔊</span>
+            <input type="range" id="volumeSlider" min="0" max="100" value="80" oninput="setVolume(this.value)">
+          </div>
+        </div>
+        <audio id="mainAudio"></audio>
+      </div>
+
+      <!-- Quick Broadcast -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Quick Broadcast</h3>
+          <span class="badge-free">FREE</span>
+        </div>
+        <div class="quick-broadcast">
+          <input type="text" id="qbTitle" placeholder="Notification title..." class="input">
+          <textarea id="qbBody" placeholder="Your message to listeners..." class="input textarea" rows="3"></textarea>
+          <button class="btn btn-primary" onclick="quickBroadcast()">🔔 Send Push Now</button>
+        </div>
+      </div>
+
+      <!-- Listeners Chart -->
+      <div class="card chart-card">
+        <div class="card-header">
+          <h3>Listener Trend (7 Days)</h3>
+        </div>
+        <canvas id="listenersChart" height="180"></canvas>
+      </div>
+
+      <!-- Upcoming Shows -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Today's Schedule</h3>
+          <a onclick="showPage('schedule')" class="card-link">View all →</a>
+        </div>
+        <div id="todaySchedule" class="schedule-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ STREAM MANAGER -->
+  <section class="page" id="page-stream">
+    <div class="page-intro">
+      <p>Manage your live stream connection. Your Shoutcast stream is pre-configured.</p>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><h3>Stream Configuration</h3></div>
+        <div class="form-group">
+          <label>Stream URL</label>
+          <input type="text" id="streamUrl" class="input" placeholder="http://...">
+        </div>
+        <div class="form-group">
+          <label>Stream Type</label>
+          <select id="streamType" class="input">
+            <option value="shoutcast">Shoutcast V1</option>
+            <option value="shoutcast2">Shoutcast V2</option>
+            <option value="icecast">Icecast</option>
+            <option value="aac">AAC+</option>
+            <option value="hls">HLS (m3u8)</option>
+          </select>
+        </div>
+        <div class="stream-info-grid">
+          <div class="info-item"><span class="info-label">Server</span><span class="info-val">usa8.fastcast4u.com</span></div>
+          <div class="info-item"><span class="info-label">Port</span><span class="info-val">26054</span></div>
+          <div class="info-item"><span class="info-label">Stream ID</span><span class="info-val">1</span></div>
+          <div class="info-item"><span class="info-label">Protocol</span><span class="info-val">Shoutcast V1</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveStreamConfig()">💾 Save & Apply</button>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>Stream Status</h3></div>
+        <div class="stream-status-display">
+          <div class="status-indicator" id="streamStatusIndicator">
+            <div class="status-dot green"></div>
+            <span>Stream Active</span>
+          </div>
+          <div class="status-stats">
+            <div class="ss-row"><span>Live Listeners</span><strong id="ssListeners">--</strong></div>
+            <div class="ss-row"><span>Now Playing</span><strong id="ssNowPlaying">--</strong></div>
+            <div class="ss-row"><span>Bitrate</span><strong>128 kbps</strong></div>
+            <div class="ss-row"><span>Format</span><strong>MP3</strong></div>
+            <div class="ss-row"><span>Uptime</span><strong id="ssUptime">--</strong></div>
+          </div>
+          <button class="btn btn-outline" onclick="testStream()">🔄 Test Connection</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ LIVE PLAYER -->
+  <section class="page" id="page-player">
+    <div class="player-page">
+      <div class="card player-hero">
+        <div class="player-artwork" id="playerArtwork">🎵</div>
+        <div class="player-now-info">
+          <div class="player-station" id="playerStation">My Radio Station</div>
+          <div class="player-song" id="playerSong">Loading...</div>
+          <div class="player-artist" id="playerArtist">Live Stream</div>
+        </div>
+        <div class="player-controls">
+          <button class="player-btn" onclick="seekBack()">⏮</button>
+          <button class="player-btn big" id="playerPlayBtn" onclick="toggleMainPlayer()">▶</button>
+          <button class="player-btn" onclick="seekForward()">⏭</button>
+        </div>
+        <div class="player-vol-row">
+          <span>🔇</span>
+          <input type="range" id="playerVolume" min="0" max="100" value="80" oninput="setVolume(this.value)" class="vol-slider">
+          <span>🔊</span>
+        </div>
+        <div class="player-meta">
+          <span class="live-pill"><span class="live-dot sm"></span> LIVE BROADCAST</span>
+          <span id="playerListeners">-- listeners</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>Recent Tracks</h3></div>
+        <div class="track-list" id="trackHistory">
+          <div class="track-item playing"><span class="track-icon">🎵</span><span class="track-name">Now Playing...</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ SCHEDULE -->
+  <section class="page" id="page-schedule">
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="openModal('addShowModal')">+ Add Show</button>
+    </div>
+    <div class="schedule-week" id="scheduleWeek"></div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ PODCASTS -->
+  <section class="page" id="page-podcasts">
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="openModal('addPodcastModal')">+ Add Episode</button>
+      <a class="btn btn-outline" href="/feed/podcasts.xml" target="_blank">📡 RSS Feed</a>
+    </div>
+    <div class="podcasts-grid" id="podcastsGrid"></div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ PUSH NOTIFICATIONS -->
+  <section class="page" id="page-push">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><h3>Send Push Notification</h3><span class="badge-free">FREE</span></div>
+        <div class="form-group">
+          <label>Title</label>
+          <input type="text" id="pushTitle" class="input" placeholder="Breaking: New show starting!">
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="pushBody" class="input textarea" rows="3" placeholder="Tune in now for..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Click URL (optional)</label>
+          <input type="text" id="pushUrl" class="input" placeholder="https://...">
+        </div>
+        <button class="btn btn-primary" onclick="sendPush()">🚀 Send to All Subscribers</button>
+        <div class="push-preview" id="pushPreview">
+          <div class="preview-label">Preview</div>
+          <div class="preview-notification">
+            <div class="pn-icon">🎙️</div>
+            <div class="pn-content">
+              <div class="pn-title" id="prevTitle">Notification Title</div>
+              <div class="pn-body" id="prevBody">Your message here</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Subscribers</h3>
+            <span class="stat-badge" id="subCountBadge">0</span>
+          </div>
+          <div id="subscribersList" class="subscribers-list"></div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-header"><h3>Notification History</h3></div>
+          <div id="pushHistory" class="push-history"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ ANALYTICS -->
+  <section class="page" id="page-analytics">
+    <div class="stats-grid">
+      <div class="stat-card accent-purple">
+        <div class="stat-icon">👥</div>
+        <div class="stat-body">
+          <div class="stat-value" id="aTotalListeners">--</div>
+          <div class="stat-label">Total Listeners (30d)</div>
+        </div>
+      </div>
+      <div class="stat-card accent-red">
+        <div class="stat-icon">🏆</div>
+        <div class="stat-body">
+          <div class="stat-value" id="aPeak">--</div>
+          <div class="stat-label">Peak Concurrent</div>
+        </div>
+      </div>
+      <div class="stat-card accent-green">
+        <div class="stat-icon">▶️</div>
+        <div class="stat-body">
+          <div class="stat-value" id="aTotalPlays">--</div>
+          <div class="stat-label">Total Stream Plays</div>
+        </div>
+      </div>
+      <div class="stat-card accent-blue">
+        <div class="stat-icon">⏱️</div>
+        <div class="stat-body">
+          <div class="stat-value" id="aAvgSession">--min</div>
+          <div class="stat-label">Avg. Session Time</div>
+        </div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="card chart-card">
+        <div class="card-header"><h3>Daily Listeners</h3></div>
+        <canvas id="analyticsChart" height="200"></canvas>
+      </div>
+      <div class="card chart-card">
+        <div class="card-header"><h3>Plays Per Day</h3></div>
+        <canvas id="playsChart" height="200"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ APP BUILDER -->
+  <section class="page" id="page-appbuilder">
+    <div class="app-builder-layout">
+      <!-- Config Panel -->
+      <div class="ab-config">
+        <div class="card">
+          <div class="card-header"><h3>App Identity</h3></div>
+          <div class="form-group">
+            <label>Station Name</label>
+            <input type="text" id="abName" class="input" oninput="updatePreview()">
+          </div>
+          <div class="form-group">
+            <label>Slogan</label>
+            <input type="text" id="abSlogan" class="input" oninput="updatePreview()">
+          </div>
+          <div class="form-group">
+            <label>Primary Color</label>
+            <div class="color-row">
+              <input type="color" id="abColorPrimary" value="#6C63FF" oninput="updatePreview()">
+              <input type="text" class="input color-hex" id="abColorPrimaryHex" value="#6C63FF" oninput="syncColor('abColorPrimary','abColorPrimaryHex')">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Accent Color</label>
+            <div class="color-row">
+              <input type="color" id="abColorSecondary" value="#FF6B6B" oninput="updatePreview()">
+              <input type="text" class="input color-hex" id="abColorSecondaryHex" value="#FF6B6B" oninput="syncColor('abColorSecondary','abColorSecondaryHex')">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Logo URL</label>
+            <input type="text" id="abLogo" class="input" placeholder="https://..." oninput="updatePreview()">
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Social Links</h3></div>
+          <div class="form-group"><label>Website</label><input type="text" id="abWebsite" class="input" placeholder="https://..."></div>
+          <div class="form-group"><label>Facebook</label><input type="text" id="abFacebook" class="input" placeholder="facebook.com/..."></div>
+          <div class="form-group"><label>Twitter/X</label><input type="text" id="abTwitter" class="input" placeholder="@handle"></div>
+          <div class="form-group"><label>Instagram</label><input type="text" id="abInstagram" class="input" placeholder="@handle"></div>
+          <button class="btn btn-primary" onclick="saveAppConfig()">💾 Save Configuration</button>
+        </div>
+      </div>
+
+      <!-- Phone Preview -->
+      <div class="ab-preview">
+        <div class="phone-frame">
+          <div class="phone-screen" id="phoneScreen">
+            <div class="phone-status-bar">9:41 AM ▼</div>
+            <div class="phone-header" id="phoneHeader">
+              <div class="phone-logo" id="phoneLogo">🎙️</div>
+              <div class="phone-station-name" id="phoneStationName">My Radio Station</div>
+              <div class="phone-slogan" id="phoneSlogan">Live 24/7</div>
+            </div>
+            <div class="phone-player" id="phonePlayer">
+              <div class="phone-artwork">🎵</div>
+              <div class="phone-song">Now Playing...</div>
+              <div class="phone-controls">
+                <span>⏮</span>
+                <span class="phone-play-btn" id="phonePlayBtn">▶</span>
+                <span>⏭</span>
+              </div>
+              <div class="phone-live-badge">● LIVE</div>
+            </div>
+            <div class="phone-menu">
+              <div class="phone-menu-item active" id="phoneTab1">Radio</div>
+              <div class="phone-menu-item" id="phoneTab2">Podcasts</div>
+              <div class="phone-menu-item" id="phoneTab3">Schedule</div>
+              <div class="phone-menu-item" id="phoneTab4">More</div>
+            </div>
+          </div>
+        </div>
+        <div class="ab-export-row">
+          <button class="btn btn-primary" onclick="exportWebApp()">🌐 Export Web App</button>
+          <button class="btn btn-outline" onclick="copyEmbedCode()">📋 Get Embed Code</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ WIDGETS -->
+  <section class="page" id="page-widgets">
+    <div class="toolbar">
+      <button class="btn btn-primary" onclick="openModal('addWidgetModal')">+ Create Widget</button>
+    </div>
+    <div class="widgets-grid" id="widgetsGrid">
+      <div class="widget-template" onclick="createPlayerWidget()">
+        <div class="wt-icon">🎵</div>
+        <div class="wt-name">Mini Player</div>
+        <div class="wt-desc">Embeddable live player bar</div>
+      </div>
+      <div class="widget-template" onclick="createScheduleWidget()">
+        <div class="wt-icon">📅</div>
+        <div class="wt-name">Schedule Widget</div>
+        <div class="wt-desc">Show your on-air schedule</div>
+      </div>
+      <div class="widget-template" onclick="createNowPlayingWidget()">
+        <div class="wt-icon">🎶</div>
+        <div class="wt-name">Now Playing Widget</div>
+        <div class="wt-desc">Live track info display</div>
+      </div>
+    </div>
+    <div id="savedWidgets" class="saved-widgets"></div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ MONETIZATION -->
+  <section class="page" id="page-monetize">
+    <div class="monetize-hero">
+      <div class="mh-badge">💰 FREE MONETIZATION TOOLS</div>
+      <h2>Start earning from your audience</h2>
+      <p>All monetization features are free — forever. No platform fees, no revenue cuts.</p>
+    </div>
+    <div class="monetize-grid">
+      <div class="card monetize-card">
+        <div class="mc-icon">📢</div>
+        <h3>Ad Manager</h3>
+        <p>Schedule banner and audio ads for your stream. Manage inventory and track impressions.</p>
+        <button class="btn btn-primary" onclick="showPage('ads')">Manage Ads</button>
+      </div>
+      <div class="card monetize-card">
+        <div class="mc-icon">⭐</div>
+        <h3>Premium Subscriptions</h3>
+        <p>Offer ad-free listening, exclusive content, or early access shows to paying supporters.</p>
+        <button class="btn btn-outline">Coming Soon</button>
+      </div>
+      <div class="card monetize-card">
+        <div class="mc-icon">🎁</div>
+        <h3>Listener Donations</h3>
+        <p>Accept tips and donations from your community directly through the app.</p>
+        <button class="btn btn-outline">Coming Soon</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:24px">
+      <div class="card-header"><h3>Ad Campaigns</h3><button class="btn btn-sm btn-primary" onclick="openModal('addAdModal')">+ New Ad</button></div>
+      <div id="adsList" class="ads-list"></div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ SETTINGS -->
+  <section class="page" id="page-settings">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><h3>Station Settings</h3></div>
+        <div class="form-group"><label>Station Name</label><input type="text" id="settingName" class="input"></div>
+        <div class="form-group"><label>Slogan / Tagline</label><input type="text" id="settingSlogan" class="input"></div>
+        <div class="form-group"><label>Stream URL</label><input type="text" id="settingStreamUrl" class="input"></div>
+        <div class="form-group"><label>Website URL</label><input type="text" id="settingWebsite" class="input"></div>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Platform Info</h3></div>
+        <div class="platform-info">
+          <div class="pi-row"><span>Plan</span><span class="pi-val free">🆓 FREE FOREVER</span></div>
+          <div class="pi-row"><span>Stream Protocol</span><span class="pi-val">Shoutcast V1</span></div>
+          <div class="pi-row"><span>Server</span><span class="pi-val">usa8.fastcast4u.com:26054</span></div>
+          <div class="pi-row"><span>Push Notifications</span><span class="pi-val green">✅ Enabled</span></div>
+          <div class="pi-row"><span>Podcast RSS</span><span class="pi-val"><a href="/feed/podcasts.xml" target="_blank">/feed/podcasts.xml</a></span></div>
+          <div class="pi-row"><span>Analytics</span><span class="pi-val green">✅ Active</span></div>
+          <div class="pi-row"><span>Widget Builder</span><span class="pi-val green">✅ Active</span></div>
+          <div class="pi-row"><span>App Builder</span><span class="pi-val green">✅ Active</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══ MODALS ══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="addShowModal" onclick="closeModalOutside(event,'addShowModal')">
+  <div class="modal">
+    <div class="modal-header"><h3>Add Show</h3><button onclick="closeModal('addShowModal')">✕</button></div>
+    <div class="form-group"><label>Show Title</label><input type="text" id="newShowTitle" class="input" placeholder="Morning Drive"></div>
+    <div class="form-group"><label>Host Name</label><input type="text" id="newShowHost" class="input" placeholder="DJ Shark"></div>
+    <div class="form-group"><label>Day(s)</label><input type="text" id="newShowDay" class="input" placeholder="Monday,Wednesday,Friday"></div>
+    <div class="two-col-sm">
+      <div class="form-group"><label>Start Time</label><input type="time" id="newShowStart" class="input" value="09:00"></div>
+      <div class="form-group"><label>End Time</label><input type="time" id="newShowEnd" class="input" value="11:00"></div>
+    </div>
+    <div class="form-group"><label>Description</label><textarea id="newShowDesc" class="input textarea" rows="2"></textarea></div>
+    <button class="btn btn-primary full-width" onclick="addShow()">Add Show</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addPodcastModal" onclick="closeModalOutside(event,'addPodcastModal')">
+  <div class="modal">
+    <div class="modal-header"><h3>Add Podcast Episode</h3><button onclick="closeModal('addPodcastModal')">✕</button></div>
+    <div class="form-group"><label>Episode Title</label><input type="text" id="newPodTitle" class="input"></div>
+    <div class="form-group"><label>Description</label><textarea id="newPodDesc" class="input textarea" rows="2"></textarea></div>
+    <div class="form-group"><label>Audio URL (MP3)</label><input type="text" id="newPodUrl" class="input" placeholder="https://..."></div>
+    <div class="form-group"><label>Cover Image URL</label><input type="text" id="newPodImage" class="input" placeholder="https://..."></div>
+    <div class="form-group"><label>Duration</label><input type="text" id="newPodDuration" class="input" placeholder="45:30"></div>
+    <button class="btn btn-primary full-width" onclick="addPodcast()">Add Episode</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="addAdModal" onclick="closeModalOutside(event,'addAdModal')">
+  <div class="modal">
+    <div class="modal-header"><h3>New Ad Campaign</h3><button onclick="closeModal('addAdModal')">✕</button></div>
+    <div class="form-group"><label>Campaign Name</label><input type="text" id="newAdName" class="input"></div>
+    <div class="form-group"><label>Ad Type</label><select id="newAdType" class="input"><option value="banner">Banner</option><option value="audio">Audio Spot</option><option value="popup">Interstitial</option></select></div>
+    <div class="form-group"><label>Content/Code</label><textarea id="newAdContent" class="input textarea" rows="3" placeholder="Banner HTML or audio URL..."></textarea></div>
+    <button class="btn btn-primary full-width" onclick="addAd()">Create Campaign</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
